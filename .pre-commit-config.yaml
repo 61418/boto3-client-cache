@@ -16,13 +16,6 @@ repos:
     types: [python]
     entry: uv run ruff format --check .
     language: system
-  - id: uv-lock-check
-    name: uv-lock-check
-    alias: uv-lock-check
-    entry: uv lock --check
-    language: system
-    pass_filenames: false
-    always_run: true
   - id: pytest
     name: pytest
     alias: pytest

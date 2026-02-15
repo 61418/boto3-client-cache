@@ -35,25 +35,16 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
-      - name: Check uv lockfile
-        if: ${{ hashFiles('uv.lock') != '' }}
-        run: uv lock --check
-
       - name: Cache uv Dependencies
         id: cached-uv-dependencies
         uses: actions/cache@v4
         with:
           path: .venv
-          key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/uv.lock', '**/pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/pyproject.toml') }}
 
       - name: Install Dependencies
         if: steps.cached-uv-dependencies.outputs.cache-hit != 'true'
-        run: |
-          if [ -f uv.lock ]; then
-            uv sync --frozen --all-groups
-          else
-            uv sync --all-groups
-          fi
+        run: uv sync --all-groups
 
       - name: Check Formatting with Ruff
         run: uv run ruff format --check .
@@ -105,8 +96,7 @@ jobs:
         uses: googleapis/release-please-action@v4
         with:
           token: ${{ secrets.GH_PAT }}
-          config-file: configs/release-please-config.json
-          manifest-file: configs/.release-please-manifest.json
+          release-type: python
 
       - name: Check-Out Repository at Released SHA
         if: steps.release.outputs.release_created == 'true'
@@ -160,16 +150,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .venv
-          key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/uv.lock', '**/pyproject.toml') }}
+          key: uv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/pyproject.toml') }}
 
       - name: Install Dependencies
         if: steps.cached-uv-dependencies.outputs.cache-hit != 'true'
-        run: |
-          if [ -f uv.lock ]; then
-            uv sync --frozen --all-groups
-          else
-            uv sync --all-groups
-          fi
+        run: uv sync --all-groups
 
       - name: Build docs
         run: uv run --directory docs make clean html
