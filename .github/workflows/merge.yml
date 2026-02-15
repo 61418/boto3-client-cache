@@ -11,5 +11,18 @@ jobs:
       pull-requests: read
     steps:
       - uses: step-security/action-semantic-pull-request@v6
+        with:
+          types: |
+            feat
+            fix
+            perf
+            refactor
+            docs
+            style
+            test
+            build
+            ci
+            chore
+            revert
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
