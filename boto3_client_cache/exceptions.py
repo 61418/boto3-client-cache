@@ -12,6 +12,8 @@ from typing import Any, Dict
 class ClientCacheError(Exception):
     """The base exception for boto3-client-cache.
 
+    .. versionadded:: 0.1.0
+
     Parameters
     ----------
     message : str, optional
@@ -82,8 +84,14 @@ class ClientCacheError(Exception):
 
 class ClientCacheExistsError(ClientCacheError):
     """Raised when attempting to add a client to the cache that already
-    exists."""
+    exists.
+
+    .. versionadded:: 0.1.0
+    """
 
 
 class ClientCacheNotFoundError(ClientCacheError):
-    """Raised when a client is not found in the cache."""
+    """Raised when a client is not found in the cache.
+
+    .. versionadded:: 0.1.0
+    """

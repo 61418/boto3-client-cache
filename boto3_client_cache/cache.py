@@ -1,4 +1,5 @@
-"""Cache primitives for memoizing objects."""
+"""Module for caching boto3 clients based on their initialization
+parameters."""
 
 __all__ = ["CacheType", "ClientCache", "ClientCacheKey", "LRUClientCache"]
 
@@ -18,7 +19,7 @@ from .exceptions import (
 )
 
 #: Type alias for supported cache types
-CacheType = Literal["LRU", "LFU"]
+CacheType = Literal["LRU"]
 
 
 class ClientCacheKey:
@@ -28,6 +29,8 @@ class ClientCacheKey:
     In order to interact with the cache, instances of this class should be
     created using the same arguments that would be used to initialize the
     boto3 client.
+
+    .. versionadded:: 0.1.0
 
     Parameters
     ----------
@@ -208,8 +211,11 @@ class ClientCacheKey:
         return repr(value)
 
 
-class AbstractClientCache(ABC):
-    """Abstract base class for client caches."""
+class _AbstractClientCache(ABC):
+    """Abstract base class for client caches.
+
+    .. versionadded:: 0.1.0
+    """
 
     @abstractmethod
     def __str__(self) -> str: ...
@@ -262,12 +268,14 @@ class AbstractClientCache(ABC):
     def popitem(self) -> Tuple[ClientCacheKey, BaseClient]: ...
 
     @abstractmethod
-    def copy(self) -> "AbstractClientCache": ...
+    def copy(self) -> "_AbstractClientCache": ...
 
 
-class ClientCacheRegistry:
+class _ClientCacheRegistry:
     """Lightweight class-level registry for mapping ``ClientCache``
     to cache implementations.
+
+    .. versionadded:: 0.1.0
 
     Attributes
     ----------
@@ -288,7 +296,7 @@ class ClientCacheRegistry:
 
 
 class LRUClientCache(
-    AbstractClientCache, ClientCacheRegistry, cache_type="LRU"
+    _AbstractClientCache, _ClientCacheRegistry, cache_type="LRU"
 ):
     """A thread-safe LRU cache for storing clients which can be used exactly
     like a dictionary.
@@ -310,6 +318,13 @@ class LRUClientCache(
 
     ``LRUClientCache`` does not support ``fromkeys``, ``update``,
     ``setdefault``, the ``|=`` operator, or the ``|`` operator.
+
+    .. versionadded:: 0.1.0
+
+    Parameters
+    ----------
+    max_size : int, optional
+        The maximum number of clients to store in the cache. Defaults to 10.
 
     Attributes
     ----------
@@ -347,6 +362,13 @@ class LRUClientCache(
     ClientCacheNotFoundError
         Raised when attempting to retrieve or delete a client which does not
         exist in the cache.
+
+    Examples
+    --------
+    >>> from boto3_client_cache import LRUClientCache, ClientCacheKey
+    >>> cache = LRUClientCache(max_size=2)
+    >>> kwargs = {"service_name": "s3", "region_name": "us-west-2"}
+    >>> cache[ClientCacheKey(**kwargs)] = boto3.client(**kwargs)
     """
 
     def __init__(self, max_size: int | None = None) -> None:
@@ -543,36 +565,45 @@ class LRUClientCache(
 
 
 class ClientCache:
+    """Factory method for creating client cache instances.
+
+    .. versionadded:: 0.1.0
+
+    Parameters
+    ----------
+    cache_type : CacheType, optional
+        The type of cache to create. Defaults to "LRU".
+    *args : Any, optional
+        Positional arguments to pass to the cache constructor.
+    **kwargs : Any, optional
+        Keyword arguments to pass to the cache constructor.
+
+    Returns
+    -------
+    LRUClientCache
+        An LRU client cache instance.
+
+    Raises
+    ------
+    ClientCacheError
+        If an unsupported cache type is requested.
+
+    See Also
+    --------
+    boto3_client_cache.cache.LRUClientCache
+
+    Examples
+    --------
+    >>> from boto3_client_cache import ClientCache, ClientCacheKey
+    >>> cache = ClientCache(max_size=2)
+    >>> kwargs = {"service_name": "s3", "region_name": "us-west-2"}
+    >>> cache[ClientCacheKey(**kwargs)] = boto3.client(**kwargs)
+    """
+
     def __new__(
         cls, cache_type: CacheType = "LRU", *args, **kwargs
     ) -> LRUClientCache:
-        """Factory method for creating client cache instances.
-
-        Parameters
-        ----------
-        cache_type : CacheType, optional
-            The type of cache to create. Defaults to "LRU".
-        *args : Any, optional
-            Positional arguments to pass to the cache constructor.
-        **kwargs : Any, optional
-            Keyword arguments to pass to the cache constructor.
-
-        Returns
-        -------
-        LRUClientCache
-            An LRU client cache instance.
-
-        Raises
-        ------
-        ClientCacheError
-            If an unsupported cache type is requested.
-
-        See Also
-        --------
-        boto3_client_cache.cache.LRUClientCache
-        """
-
-        if cache_type not in ClientCacheRegistry.registry:
+        if cache_type not in _ClientCacheRegistry.registry:
             raise ClientCacheError(f"Unsupported cache type: {cache_type}")
 
-        return ClientCacheRegistry.registry[cache_type](*args, **kwargs)
+        return _ClientCacheRegistry.registry[cache_type](*args, **kwargs)

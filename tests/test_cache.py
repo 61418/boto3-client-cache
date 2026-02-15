@@ -7,8 +7,8 @@ from botocore.config import Config
 from boto3_client_cache.cache import (
     ClientCache,
     ClientCacheKey,
-    ClientCacheRegistry,
     LRUClientCache,
+    _ClientCacheRegistry,
 )
 from boto3_client_cache.exceptions import (
     ClientCacheError,
@@ -113,7 +113,7 @@ def test_client_cache_factory_returns_registered_lru_subclass() -> None:
     cache = ClientCache()
 
     assert isinstance(cache, LRUClientCache)
-    assert type(cache) is ClientCacheRegistry.registry["LRU"]
+    assert type(cache) is _ClientCacheRegistry.registry["LRU"]
 
 
 def test_client_cache_factory_rejects_unsupported_cache_type() -> None:
