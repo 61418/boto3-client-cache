@@ -142,3 +142,4 @@ Refer to the [contributing guidelines](https://github.com/michaelthomasletts/bot
 ## Special Thanks
 
 - [Patrick Sanders](https://github.com/patricksanders)
+- [Ben Kehoe](https://github.com/benkehoe)
