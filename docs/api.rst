@@ -5,15 +5,11 @@ API
 
 The primary interface for boto3-client-cache is :class:`boto3_client_cache.cache.ClientCache`,
 which can be used to cache and retrieve boto3 clients efficiently. The cache is designed to be 
-thread-safe and supports an LRU eviction policy.
+thread-safe and supports LRU and LFU eviction policies.
 
 :class:`boto3_client_cache.cache.ClientCache` can be used exactly like a standard Python 
 dictionary, with the exception of the ``fromkeys``, ``update``, and ``setdefault`` methods, as 
 well as the ``|=`` and ``|`` operator.
-
-.. note::
-
-    In a future release, LFU caching will also be available as an option.
 
 .. important::
 

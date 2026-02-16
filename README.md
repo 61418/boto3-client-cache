@@ -66,7 +66,7 @@
 
 boto3-client-cache provides a concurrency-safe, bounded cache for boto3 clients with deterministic identity semantics.
 
-LRU eviction is supported. LFU eviction is planned for a future release.
+LRU and LFU eviction are supported.
 
 ## Why this Exists
 

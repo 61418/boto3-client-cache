@@ -7,6 +7,7 @@ from botocore.config import Config
 from boto3_client_cache.cache import (
     ClientCache,
     ClientCacheKey,
+    LFUClientCache,
     LRUClientCache,
     _ClientCacheRegistry,
 )
@@ -116,9 +117,16 @@ def test_client_cache_factory_returns_registered_lru_subclass() -> None:
     assert type(cache) is _ClientCacheRegistry.registry["LRU"]
 
 
-def test_client_cache_factory_rejects_unsupported_cache_type() -> None:
+def test_client_cache_factory_returns_registered_lfu_subclass() -> None:
+    cache = ClientCache("LFU")
+
+    assert isinstance(cache, LFUClientCache)
+    assert type(cache) is _ClientCacheRegistry.registry["LFU"]
+
+
+def test_client_cache_factory_rejects_unsupported_eviction_policy() -> None:
     with pytest.raises(ClientCacheError, match="Unsupported cache type"):
-        ClientCache("LFU")  # type: ignore[call-arg]
+        ClientCache("FIFO")  # type: ignore[call-arg]
 
 
 def test_lru_cache_init_max_size_and_resizing_with_eviction() -> None:
@@ -358,6 +366,276 @@ def test_lru_cache_excluded_dict_methods_are_not_supported() -> None:
     assert not hasattr(cache, "update")
     assert not hasattr(cache, "setdefault")
     assert not hasattr(LRUClientCache, "fromkeys")
+
+    with pytest.raises(TypeError):
+        _ = cache | {}  # type: ignore[operator]
+
+    with pytest.raises(TypeError):
+        cache |= {}  # type: ignore[operator]
+
+
+def test_lfu_cache_init_max_size_and_resizing_with_eviction() -> None:
+    cache = LFUClientCache(max_size=-3)
+    keys = [ClientCacheKey(f"svc{i}") for i in range(3)]
+
+    for index, key in enumerate(keys):
+        cache[key] = _client(f"c{index}")
+
+    assert cache.max_size == 3
+    assert cache.keys() == tuple(keys)
+
+    _ = cache[keys[0]]
+    cache.max_size = -1
+    assert cache.max_size == 1
+    assert cache.keys() == (keys[0],)
+
+
+def test_lfu_cache_call_builds_key_and_inserts_client() -> None:
+    cache = LFUClientCache()
+    client = _client("s3")
+
+    cache(client, "s3", region_name="us-east-1")
+
+    assert cache[ClientCacheKey("s3", region_name="us-east-1")] is client
+
+
+def test_lfu_cache_string_repr_for_empty_and_populated_cache() -> None:
+    cache = LFUClientCache()
+    assert str(cache) == "ClientCache(empty)"
+    assert repr(cache) == "ClientCache(empty)"
+
+    key = ClientCacheKey("s3", region_name="us-east-1")
+    cache[key] = _client("s3")
+
+    rendered = str(cache)
+    assert rendered.startswith("ClientCache:\n")
+    assert f"RefreshableSession.client({key.label})" in rendered
+    assert repr(cache) == rendered
+
+
+def test_lfu_cache_dict_protocol_and_iteration_order() -> None:
+    cache = LFUClientCache()
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+
+    cache[first] = _client("first")
+    cache[second] = _client("second")
+    _ = cache[first]
+
+    assert len(cache) == 2
+    assert first in cache
+    assert list(iter(cache)) == [second, first]
+    assert list(reversed(cache)) == [first, second]
+
+
+def test_lfu_cache_getitem_marks_client_frequent_and_miss_raises() -> None:
+    cache = LFUClientCache(max_size=2)
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    third = ClientCacheKey("sqs")
+
+    cache[first] = _client("first")
+    cache[second] = _client("second")
+    _ = cache[first]
+    cache[third] = _client("third")
+
+    assert first in cache
+    assert third in cache
+    assert second not in cache
+
+    with pytest.raises(ClientCacheNotFoundError):
+        _ = cache[ClientCacheKey("missing")]
+
+
+def test_lfu_cache_tie_breaker_eviction_is_lru_within_frequency() -> None:
+    cache = LFUClientCache(max_size=2)
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    third = ClientCacheKey("sqs")
+
+    cache[first] = _client("first")
+    cache[second] = _client("second")
+    cache[third] = _client("third")
+
+    assert first not in cache
+    assert second in cache
+    assert third in cache
+
+
+@pytest.mark.parametrize(
+    ("key", "obj", "error", "message"),
+    [
+        ("not-a-key", _client("good"), ClientCacheError, "Cache key must"),
+        (ClientCacheKey("s3"), object(), ClientCacheError, "Cache value must"),
+    ],
+)
+def test_lfu_cache_setitem_validates_types(
+    key: object,
+    obj: object,
+    error: type[Exception],
+    message: str,
+) -> None:
+    cache = LFUClientCache()
+    with pytest.raises(error, match=message):
+        cache[key] = obj  # type: ignore[index]
+
+
+def test_lfu_cache_setitem_duplicate_key_raises_exists_error() -> None:
+    cache = LFUClientCache()
+    key = ClientCacheKey("s3")
+    cache[key] = _client("first")
+
+    with pytest.raises(ClientCacheExistsError, match="already exists"):
+        cache[key] = _client("second")
+
+
+def test_lfu_cache_delete_and_missing_delete() -> None:
+    cache = LFUClientCache()
+    key = ClientCacheKey("s3")
+    cache[key] = _client("value")
+
+    del cache[key]
+    assert key not in cache
+
+    with pytest.raises(ClientCacheNotFoundError, match="Client not found"):
+        del cache[key]
+
+
+def test_lfu_cache_keys_values_items_are_tuples_and_snapshots() -> None:
+    cache = LFUClientCache()
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    first_client = _client("first")
+    second_client = _client("second")
+    cache[first] = first_client
+    cache[second] = second_client
+    _ = cache[first]
+
+    keys_snapshot = cache.keys()
+    values_snapshot = cache.values()
+    items_snapshot = cache.items()
+
+    assert isinstance(keys_snapshot, tuple)
+    assert isinstance(values_snapshot, tuple)
+    assert isinstance(items_snapshot, tuple)
+    assert keys_snapshot == (second, first)
+    assert values_snapshot == (second_client, first_client)
+    assert items_snapshot == (
+        (second, second_client),
+        (first, first_client),
+    )
+
+    cache[ClientCacheKey("sqs")] = _client("third")
+    assert keys_snapshot == (second, first)
+    assert values_snapshot == (second_client, first_client)
+    assert items_snapshot == (
+        (second, second_client),
+        (first, first_client),
+    )
+
+
+def test_lfu_cache_get_returns_default_and_marks_hit_frequent() -> None:
+    cache = LFUClientCache(max_size=2)
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    third = ClientCacheKey("sqs")
+    first_client = _client("first")
+    second_client = _client("second")
+    default = _client("default")
+
+    cache[first] = first_client
+    cache[second] = second_client
+
+    assert cache.get(first) is first_client
+    cache[third] = _client("third")
+    assert second not in cache
+    assert cache.get(ClientCacheKey("missing"), default) is default
+
+
+def test_lfu_cache_pop_and_popitem_and_clear() -> None:
+    cache = LFUClientCache()
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    first_client = _client("first")
+    second_client = _client("second")
+    cache[first] = first_client
+    cache[second] = second_client
+
+    assert cache.pop(first) is first_client
+    assert first not in cache
+
+    lfu_key, lfu_client = cache.popitem()
+    assert lfu_key == second
+    assert lfu_client is second_client
+    assert len(cache) == 0
+
+    with pytest.raises(ClientCacheNotFoundError, match="No clients found"):
+        cache.popitem()
+
+    with pytest.raises(ClientCacheNotFoundError, match="Client not found"):
+        cache.pop(first)
+
+    cache[ClientCacheKey("sqs")] = _client("third")
+    cache.clear()
+    assert len(cache) == 0
+
+
+def test_lfu_cache_copy_is_independent_but_shallow() -> None:
+    cache = LFUClientCache(max_size=2)
+    first = ClientCacheKey("s3")
+    second = ClientCacheKey("sns")
+    third = ClientCacheKey("sqs")
+    first_client = _client("first")
+    second_client = _client("second")
+    cache[first] = first_client
+    cache[second] = second_client
+    _ = cache[first]
+
+    copied = cache.copy()
+    assert isinstance(copied, LFUClientCache)
+    assert copied is not cache
+    assert copied.max_size == cache.max_size
+    assert copied[first] is first_client
+    assert copied[second] is second_client
+
+    copied[third] = _client("third")
+    assert second not in copied
+    assert second in cache
+
+
+def test_lfu_cache_uses_lock_for_core_operations() -> None:
+    cache = LFUClientCache()
+    lock = _TrackingLock()
+    cache._lock = lock  # type: ignore[assignment]
+    key = ClientCacheKey("s3")
+    client = _client("value")
+
+    cache[key] = client
+    _ = cache.get(key)
+    _ = cache[key]
+    _ = len(cache)
+    _ = list(cache)
+    _ = key in cache
+    _ = cache.keys()
+    _ = cache.values()
+    _ = cache.items()
+    _ = str(cache)
+    _ = repr(cache)
+    _ = list(reversed(cache))
+    cache.max_size = 10
+    _ = cache.pop(key)
+    cache.clear()
+
+    assert lock.enter_count > 0
+    assert lock.enter_count == lock.exit_count
+
+
+def test_lfu_cache_excluded_dict_methods_are_not_supported() -> None:
+    cache = LFUClientCache()
+
+    assert not hasattr(cache, "update")
+    assert not hasattr(cache, "setdefault")
+    assert not hasattr(LFUClientCache, "fromkeys")
 
     with pytest.raises(TypeError):
         _ = cache | {}  # type: ignore[operator]
