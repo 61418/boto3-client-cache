@@ -16,5 +16,6 @@ boto3\_client\_cache.cache
    
       ClientCache
       ClientCacheKey
+      LFUClientCache
       LRUClientCache
    
