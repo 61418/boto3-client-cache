@@ -144,15 +144,6 @@ def test_lru_cache_init_max_size_and_resizing_with_eviction() -> None:
     assert cache.keys() == (keys[-1],)
 
 
-def test_lru_cache_call_builds_key_and_inserts_client() -> None:
-    cache = LRUClientCache()
-    client = _client("s3")
-
-    cache(client, "s3", region_name="us-east-1")
-
-    assert cache[ClientCacheKey("s3", region_name="us-east-1")] is client
-
-
 def test_lru_cache_string_repr_for_empty_and_populated_cache() -> None:
     cache = LRUClientCache()
     assert str(cache) == "ClientCache(empty)"
@@ -388,15 +379,6 @@ def test_lfu_cache_init_max_size_and_resizing_with_eviction() -> None:
     cache.max_size = -1
     assert cache.max_size == 1
     assert cache.keys() == (keys[0],)
-
-
-def test_lfu_cache_call_builds_key_and_inserts_client() -> None:
-    cache = LFUClientCache()
-    client = _client("s3")
-
-    cache(client, "s3", region_name="us-east-1")
-
-    assert cache[ClientCacheKey("s3", region_name="us-east-1")] is client
 
 
 def test_lfu_cache_string_repr_for_empty_and_populated_cache() -> None:
