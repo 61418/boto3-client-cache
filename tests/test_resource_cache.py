@@ -173,6 +173,36 @@ def test_resource_cache_key_obscures_sensitive_positional_values(
     assert key._key[0][arg_position] == value
 
 
+def test_resource_cache_key_print_and_repr_do_not_expose_sensitive_data(
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    key = ResourceCacheKey(
+        "s3",
+        aws_access_key_id="AKIA_TEST_KEY",
+        aws_secret_access_key="SECRET_TEST_KEY",
+        aws_session_token="SESSION_TEST_TOKEN",
+    )
+
+    print(key)
+    print([key])
+    captured = capsys.readouterr().out
+
+    assert "AKIA_TEST_KEY" not in captured
+    assert "SECRET_TEST_KEY" not in captured
+    assert "SESSION_TEST_TOKEN" not in captured
+    assert "aws_access_key_id=***" in captured
+    assert "aws_secret_access_key=***" in captured
+    assert "aws_session_token=***" in captured
+
+    rendered = repr(key)
+    assert "AKIA_TEST_KEY" not in rendered
+    assert "SECRET_TEST_KEY" not in rendered
+    assert "SESSION_TEST_TOKEN" not in rendered
+    assert "aws_access_key_id=***" in rendered
+    assert "aws_secret_access_key=***" in rendered
+    assert "aws_session_token=***" in rendered
+
+
 def test_resource_cache_factory_returns_registered_lru_subclass() -> None:
     cache = ResourceCache()
 
