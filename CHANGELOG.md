@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.5](https://github.com/michaelthomasletts/boto3-client-cache/compare/v2.1.4...v2.1.5) (2026-02-23)
+
+
+### Documentation
+
+* Clarifying API docs. ([4047a68](https://github.com/michaelthomasletts/boto3-client-cache/commit/4047a68e84e0531d9a1193d2179e201c4b6e10fb))
+* Clarifying API docs. ([#36](https://github.com/michaelthomasletts/boto3-client-cache/issues/36)) ([f9a2040](https://github.com/michaelthomasletts/boto3-client-cache/commit/f9a2040fa7280d36c8ea35b77cbb1201c10352e8))
+
 ## [2.1.4](https://github.com/michaelthomasletts/boto3-client-cache/compare/v2.1.3...v2.1.4) (2026-02-23)
 
 
