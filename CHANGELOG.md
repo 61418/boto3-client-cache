@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.3](https://github.com/michaelthomasletts/boto3-client-cache/compare/v2.1.2...v2.1.3) (2026-02-23)
+
+
+### Bug Fixes
+
+* License changed to Mozilla Public License v2 + NOTICE ([6f32e9b](https://github.com/michaelthomasletts/boto3-client-cache/commit/6f32e9b4fe0cd406bbba6c4895d1dc3f7950e798))
+* License changed to Mozilla Public License v2 + NOTICE ([#32](https://github.com/michaelthomasletts/boto3-client-cache/issues/32)) ([494708a](https://github.com/michaelthomasletts/boto3-client-cache/commit/494708a490a38c43af4b085646ad0973c300ca75))
+
 ## [2.1.2](https://github.com/michaelthomasletts/boto3-client-cache/compare/v2.1.1...v2.1.2) (2026-02-23)
 
 
