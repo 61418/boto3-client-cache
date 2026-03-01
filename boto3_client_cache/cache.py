@@ -557,12 +557,12 @@ class _BaseLRUCache(_AbstractCache, Generic[_CacheObjType, _CacheKeyType]):
     def __str__(self) -> str:
         with self._lock:
             if not self._cache:
-                return f"{self.cache_type.capitalize()}Cache(empty)"
+                return f"LRU{self.cache_type.capitalize()}Cache(empty)"
             labels = "\n   ".join(
                 f"- Session.{self.cache_type}({key.label})"
                 for key in self._cache.keys()
             )
-            return f"{self.cache_type.capitalize()}Cache:\n   {labels}"
+            return f"LRU{self.cache_type.capitalize()}Cache:\n   {labels}"
 
     def __repr__(self) -> str:
         return self.__str__()
@@ -1090,11 +1090,11 @@ class _BaseLFUCache(
         with self._lock:
             keys = tuple(self._frequencies.iter_keys())
             if not keys:
-                return f"{self.cache_type.capitalize()}Cache(empty)"
+                return f"LFU{self.cache_type.capitalize()}Cache(empty)"
             labels = "\n   ".join(
                 f"- Session.{self.cache_type}({key.label})" for key in keys
             )
-            return f"{self.cache_type.capitalize()}Cache:\n   {labels}"
+            return f"LFU{self.cache_type.capitalize()}Cache:\n   {labels}"
 
     def __repr__(self) -> str:
         return self.__str__()

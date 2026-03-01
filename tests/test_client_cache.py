@@ -277,14 +277,14 @@ def test_lru_cache_init_max_size_and_resizing_with_eviction() -> None:
 
 def test_lru_cache_string_repr_for_empty_and_populated_cache() -> None:
     cache = LRUClientCache()
-    assert str(cache) == "ClientCache(empty)"
-    assert repr(cache) == "ClientCache(empty)"
+    assert str(cache) == "LRUClientCache(empty)"
+    assert repr(cache) == "LRUClientCache(empty)"
 
     key = ClientCacheKey("s3", region_name="us-east-1")
     cache[key] = _client("s3")
 
     rendered = str(cache)
-    assert rendered.startswith("ClientCache:\n")
+    assert rendered.startswith("LRUClientCache:\n")
     assert f"Session.client({key.label})" in rendered
     assert repr(cache) == rendered
 
@@ -514,14 +514,14 @@ def test_lfu_cache_init_max_size_and_resizing_with_eviction() -> None:
 
 def test_lfu_cache_string_repr_for_empty_and_populated_cache() -> None:
     cache = LFUClientCache()
-    assert str(cache) == "ClientCache(empty)"
-    assert repr(cache) == "ClientCache(empty)"
+    assert str(cache) == "LFUClientCache(empty)"
+    assert repr(cache) == "LFUClientCache(empty)"
 
     key = ClientCacheKey("s3", region_name="us-east-1")
     cache[key] = _client("s3")
 
     rendered = str(cache)
-    assert rendered.startswith("ClientCache:\n")
+    assert rendered.startswith("LFUClientCache:\n")
     assert f"Session.client({key.label})" in rendered
     assert repr(cache) == rendered
 
