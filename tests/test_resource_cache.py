@@ -279,14 +279,14 @@ def test_lru_cache_init_max_size_and_resizing_with_eviction() -> None:
 
 def test_lru_cache_string_repr_for_empty_and_populated_cache() -> None:
     cache = LRUResourceCache()
-    assert str(cache) == "ResourceCache(empty)"
-    assert repr(cache) == "ResourceCache(empty)"
+    assert str(cache) == "LRUResourceCache(empty)"
+    assert repr(cache) == "LRUResourceCache(empty)"
 
     key = ResourceCacheKey("s3", region_name="us-east-1")
     cache[key] = _resource("s3")
 
     rendered = str(cache)
-    assert rendered.startswith("ResourceCache:\n")
+    assert rendered.startswith("LRUResourceCache:\n")
     assert f"Session.resource({key.label})" in rendered
     assert repr(cache) == rendered
 
@@ -521,14 +521,14 @@ def test_lfu_cache_init_max_size_and_resizing_with_eviction() -> None:
 
 def test_lfu_cache_string_repr_for_empty_and_populated_cache() -> None:
     cache = LFUResourceCache()
-    assert str(cache) == "ResourceCache(empty)"
-    assert repr(cache) == "ResourceCache(empty)"
+    assert str(cache) == "LFUResourceCache(empty)"
+    assert repr(cache) == "LFUResourceCache(empty)"
 
     key = ResourceCacheKey("s3", region_name="us-east-1")
     cache[key] = _resource("s3")
 
     rendered = str(cache)
-    assert rendered.startswith("ResourceCache:\n")
+    assert rendered.startswith("LFUResourceCache:\n")
     assert f"Session.resource({key.label})" in rendered
     assert repr(cache) == rendered
 
