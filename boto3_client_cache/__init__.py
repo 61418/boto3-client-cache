@@ -20,5 +20,5 @@ __all__ += session.__all__
 __title__ = "boto3-client-cache"
 __author__ = "Mike Letts"
 __maintainer__ = "61418"
-__license__ = "Apache License 2.0"
+__license__ = "MPL-2.0"
 __email__ = "general@61418.io"

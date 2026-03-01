@@ -502,8 +502,9 @@ def client(
         Calls to this method are serialized by a lock to ensure thread safety
         when accessing the cache. If you need higher concurrency, use multiple
         session instances or use the low-level API instead
-        (i.e. :class:`boto3_client_cache.ResourceCache` and
-        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
+        (i.e. :class:`boto3_client_cache.cache.ResourceCache` and
+        :class:`boto3_client_cache.cache.ClientCache`) in tandem with
+        ``boto3``.
 
     Examples
     --------
@@ -581,8 +582,9 @@ def resource(
         Calls to this method are serialized by a lock to ensure thread safety
         when accessing the cache. If you need higher concurrency, use multiple
         session instances or use the low-level API instead
-        (i.e. :class:`boto3_client_cache.ResourceCache` and
-        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
+        (i.e. :class:`boto3_client_cache.cache.ResourceCache` and
+        :class:`boto3_client_cache.cache.ClientCache`) in tandem with
+        ``boto3``.
 
     Examples
     --------
