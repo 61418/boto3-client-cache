@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.12](https://github.com/61418/boto3-client-cache/compare/v2.1.11...v2.1.12) (2026-03-01)
+
+
+### Documentation
+
+* Updating __license__ and ref links. ([6af0f7e](https://github.com/61418/boto3-client-cache/commit/6af0f7eff69c83720a65c3bf3a494f646a65a342))
+* Updating __license__ and ref links. ([#54](https://github.com/61418/boto3-client-cache/issues/54)) ([8d8013e](https://github.com/61418/boto3-client-cache/commit/8d8013eec6067b238bd38f69375021f978aa1546))
+
 ## [2.1.11](https://github.com/61418/boto3-client-cache/compare/v2.1.10...v2.1.11) (2026-03-01)
 
 
