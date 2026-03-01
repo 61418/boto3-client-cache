@@ -115,12 +115,6 @@ class Session(boto3.Session):
     """A subclass of :class:`boto3.session.Session` which implements automatic
     caching for clients and resources.
 
-    Calls to ``Session.client`` and ``Session.resource`` on the same session
-    instance are serialized by a lock to ensure thread safety when accessing the
-    cache. If you need higher concurrency, use multiple session instances or use
-    the low-level API instead (i.e. :class:`boto3_client_cache.ResourceCache` and
-    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
-
     .. versionadded:: 2.1.0
 
     Parameters
@@ -157,17 +151,48 @@ class Session(boto3.Session):
         maintains its own cache, so modifications to the cache in one session
         will not affect other sessions. To manage a cache across multiple
         sessions, use the low-level API instead (i.e.
-        :class:`boto3_client_cache.ResourceCache` and
-        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
+        :class:`boto3_client_cache.cache.ResourceCache` and
+        :class:`boto3_client_cache.cache.ClientCache`) in tandem with ``boto3``.
+    .. important::
+
+        Calls to ``Session.client`` and ``Session.resource`` on the same
+        session instance are serialized by a lock to ensure thread safety
+        when accessing the cache. If you need higher concurrency, use
+        multiple session instances or use the low-level API instead
+        (i.e. :class:`boto3_client_cache.cache.ResourceCache` and
+        :class:`boto3_client_cache.cache.ClientCache`) in tandem with
+        ``boto3``.
 
     Examples
     --------
+    Initialize a session and initialize a client, which will be added to the
+    LRU cache, and ensure duplicate clients are not created.
+
     >>> from boto3_client_cache import Session
     >>> session = Session(region_name="us-east-1")
     >>> s3_client = session.client("s3")
     >>> s3_client_again = session.client("s3")
     >>> s3_client is s3_client_again
     True
+
+    Initialize a session and initialize a resource, which will be added to the
+    LFU cache with a max size of 20, and ensure duplicate resources are not created.
+
+    >>> from boto3_client_cache import Session
+    >>> session = Session(region_name="us-east-1")
+    >>> s3_resource = session.resource("s3", eviction_policy="LFU", max_size=20)
+    >>> s3_resource_again = session.resource("s3", eviction_policy="LFU", max_size=20)
+    >>> s3_resource is s3_resource_again
+    True
+
+    Inspect the LRU cache directly.
+
+    >>> from boto3_client_cache import Session
+    >>> session = Session(region_name="us-east-1")
+    >>> session.client("s3")
+    >>> print(session.cache["client"]["LRU"])
+    ClientCache:
+    - Session.client('s3')
     """  # noqa: E501
 
     def __init__(self, *args, **kwargs) -> None:
@@ -189,12 +214,6 @@ class Session(boto3.Session):
         """Returns a cached client from the default session if it exists,
         otherwise creates a new client and caches it.
 
-        Calls to this method are serialized by a lock to ensure thread safety
-        when accessing the cache. If you need higher concurrency, use multiple
-        session instances or use the low-level API instead
-        (i.e. :class:`boto3_client_cache.ResourceCache` and
-        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
-
         .. versionadded:: 2.1.0
 
         Parameters
@@ -204,9 +223,9 @@ class Session(boto3.Session):
             "LFU". Defaults to "LRU".
         max_size : int | None, optional
             The maximum size of the client cache. If None, the cache size is
-            unlimited. Beware that modifying this value after the cache has
-            already been initialized may evict existing clients. Default is
-            None.
+            left unchanged. New caches default to a max size of 10. Beware
+            that modifying this value after the cache has already been
+            initialized may evict existing clients. Default is None.
         *args
             Positional arguments to be passed to the default session's client
             method. Check :meth:`boto3.session.Session.client` for more details
@@ -235,6 +254,17 @@ class Session(boto3.Session):
         ClientCacheNotFoundError
             Raised when attempting to retrieve or delete a client which does
             not exist in the cache.
+
+        Notes
+        -----
+        .. important::
+
+            Calls to this method are serialized by a lock to ensure thread
+            safety when accessing the cache. If you need higher concurrency,
+            use multiple session instances or use the low-level API instead
+            (i.e. :class:`boto3_client_cache.cache.ResourceCache` and
+            :class:`boto3_client_cache.cache.ClientCache`) in tandem with
+            ``boto3``.
 
         Examples
         --------
@@ -288,12 +318,6 @@ class Session(boto3.Session):
         """Returns a cached resource from the default session if it exists,
         otherwise creates a new resource and caches it.
 
-        Calls to this method are serialized by a lock to ensure thread safety
-        when accessing the cache. If you need higher concurrency, use multiple
-        session instances or use the low-level API instead
-        (i.e. :class:`boto3_client_cache.ResourceCache` and
-        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
-
         .. versionadded:: 2.1.0
 
         Parameters
@@ -303,9 +327,9 @@ class Session(boto3.Session):
             "LFU". Defaults to "LRU".
         max_size : int | None, optional
             The maximum size of the resource cache. If None, the cache size is
-            unlimited. Beware that modifying this value after the cache has
-            already been initialized may evict existing resources. Default is
-            None.
+            left unchanged. New caches default to a max size of 10. Beware
+            that modifying this value after the cache has already been
+            initialized may evict existing resources. Default is None.
         *args
             Positional arguments to be passed to the default session's resource
             method. Check :meth:`boto3.session.Session.resource` for more
@@ -342,6 +366,14 @@ class Session(boto3.Session):
             For correct typing, you may want to import mypy-boto3-* and use the
             generated type annotations for casting clients, which will be
             compatible with this method.
+        .. important::
+
+            Calls to this method are serialized by a lock to ensure thread
+            safety when accessing the cache. If you need higher concurrency,
+            use multiple session instances or use the low-level API instead
+            (i.e. :class:`boto3_client_cache.cache.ResourceCache` and
+            :class:`boto3_client_cache.cache.ClientCache`) in tandem with
+            ``boto3``.
 
         Examples
         --------
@@ -422,12 +454,6 @@ def client(
     """Returns a cached client from the default session if it exists,
     otherwise creates a new client and caches it.
 
-    Calls to this method are serialized by a lock to ensure thread safety
-    when accessing the cache. If you need higher concurrency, use multiple
-    session instances or use the low-level API instead
-    (i.e. :class:`boto3_client_cache.ResourceCache` and
-    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
-
     .. versionadded:: 2.1.0
 
     Parameters
@@ -437,9 +463,9 @@ def client(
         "LFU". Defaults to "LRU".
     max_size : int | None, optional
         The maximum size of the client cache. If None, the cache size is
-        unlimited. Beware that modifying this value after the cache has
-        already been initialized may evict existing clients. Default is
-        None.
+        left unchanged. New caches default to a max size of 10. Beware
+        that modifying this value after the cache has already been
+        initialized may evict existing clients. Default is None.
     *args
         Positional arguments to be passed to the default session's client
         method. Check :meth:`boto3.session.Session.client` for more details
@@ -469,6 +495,16 @@ def client(
         Raised when attempting to retrieve or delete a client which does not
         exist in the cache.
 
+    Notes
+    -----
+    .. important::
+
+        Calls to this method are serialized by a lock to ensure thread safety
+        when accessing the cache. If you need higher concurrency, use multiple
+        session instances or use the low-level API instead
+        (i.e. :class:`boto3_client_cache.ResourceCache` and
+        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
+
     Examples
     --------
     >>> from boto3_client_cache import client
@@ -492,12 +528,6 @@ def resource(
     """Returns a cached resource from the default session if it exists,
     otherwise creates a new resource and caches it.
 
-    Calls to this method are serialized by a lock to ensure thread safety
-    when accessing the cache. If you need higher concurrency, use multiple
-    session instances or use the low-level API instead
-    (i.e. :class:`boto3_client_cache.ResourceCache` and
-    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
-
     .. versionadded:: 2.1.0
 
     Parameters
@@ -507,8 +537,9 @@ def resource(
         "LFU". Defaults to "LRU".
     max_size : int | None, optional
         The maximum size of the resource cache. If None, the cache size is
-        unlimited. Beware that modifying this value after the cache has
-        already been initialized may evict existing resources. Default is None.
+        left unchanged. New caches default to a max size of 10. Beware
+        that modifying this value after the cache has already been
+        initialized may evict existing resources. Default is None.
     *args
         Positional arguments to be passed to the default session's resource
         method. Check :meth:`boto3.session.Session.resource` for more details
@@ -545,6 +576,13 @@ def resource(
         For correct typing, you may want to import mypy-boto3-* and use the
         generated type annotations for casting clients, which will be
         compatible with this method.
+    .. important::
+
+        Calls to this method are serialized by a lock to ensure thread safety
+        when accessing the cache. If you need higher concurrency, use multiple
+        session instances or use the low-level API instead
+        (i.e. :class:`boto3_client_cache.ResourceCache` and
+        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
     Examples
     --------

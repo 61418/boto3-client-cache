@@ -287,7 +287,7 @@ def test_lru_cache_string_repr_for_empty_and_populated_cache() -> None:
 
     rendered = str(cache)
     assert rendered.startswith("ResourceCache:\n")
-    assert f"RefreshableSession.resource({key.label})" in rendered
+    assert f"Session.resource({key.label})" in rendered
     assert repr(cache) == rendered
 
 
@@ -529,7 +529,7 @@ def test_lfu_cache_string_repr_for_empty_and_populated_cache() -> None:
 
     rendered = str(cache)
     assert rendered.startswith("ResourceCache:\n")
-    assert f"RefreshableSession.resource({key.label})" in rendered
+    assert f"Session.resource({key.label})" in rendered
     assert repr(cache) == rendered
 
 
