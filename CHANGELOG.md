@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.10](https://github.com/61418/boto3-client-cache/compare/v2.1.9...v2.1.10) (2026-03-01)
+
+
+### Documentation
+
+* Amending erroneous docstrings + note enhancements + examples ([83eaa6f](https://github.com/61418/boto3-client-cache/commit/83eaa6f679b61c828b16c342f7bd868b955df035))
+* Amending erroneous docstrings + note enhancements + examples ([#50](https://github.com/61418/boto3-client-cache/issues/50)) ([4f73063](https://github.com/61418/boto3-client-cache/commit/4f73063fabaf64719af45ca5105769755b4337fe))
+
 ## [2.1.9](https://github.com/61418/boto3-client-cache/compare/v2.1.8...v2.1.9) (2026-03-01)
 
 
