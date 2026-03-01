@@ -43,6 +43,7 @@ __all__ = [
     "setup_default_session",
 ]
 
+from threading import RLock
 from typing import cast, get_args
 
 import boto3
@@ -57,7 +58,12 @@ from .cache import (
     ResourceCache,
     ResourceCacheKey,
 )
-from .exceptions import ClientCacheError, ResourceCacheError
+from .exceptions import (
+    ClientCacheError,
+    ClientCacheExistsError,
+    ResourceCacheError,
+    ResourceCacheExistsError,
+)
 
 
 class SessionClientCache:
@@ -108,6 +114,12 @@ class SessionCache:
 class Session(boto3.Session):
     """A subclass of :class:`boto3.session.Session` which implements automatic
     caching for clients and resources.
+
+    Calls to ``Session.client`` and ``Session.resource`` on the same session
+    instance are serialized by a lock to ensure thread safety when accessing the
+    cache. If you need higher concurrency, use multiple session instances or use
+    the low-level API instead (i.e. :class:`boto3_client_cache.ResourceCache` and
+    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
     .. versionadded:: 2.1.0
 
@@ -164,6 +176,9 @@ class Session(boto3.Session):
         # initializing client cache attribute
         self.cache: SessionCache = SessionCache()
 
+        # initializing a lock to ensure thread safety when accessing the cache
+        self._lock = RLock()
+
     def client(
         self,
         *args,
@@ -173,6 +188,12 @@ class Session(boto3.Session):
     ) -> BaseClient:
         """Returns a cached client from the default session if it exists,
         otherwise creates a new client and caches it.
+
+        Calls to this method are serialized by a lock to ensure thread safety
+        when accessing the cache. If you need higher concurrency, use multiple
+        session instances or use the low-level API instead
+        (i.e. :class:`boto3_client_cache.ResourceCache` and
+        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
         .. versionadded:: 2.1.0
 
@@ -241,20 +262,21 @@ class Session(boto3.Session):
         # creating a cache key based on the client initialization parameters
         key = ClientCacheKey(*args, **kwargs)
 
-        # initializing the client if it doesn't exist in the cache yet
-        if key not in self.cache.client[eviction_policy]:
-            self.cache["client"][eviction_policy][key] = super().client(
-                *args, **kwargs
-            )
+        with self._lock:
+            # initializing the client if it doesn't exist in the cache yet
+            if key not in (cache := self.cache["client"][eviction_policy]):
+                try:
+                    cache[key] = super().client(*args, **kwargs)
+                except ClientCacheExistsError:
+                    # another thread may have populated the cache between
+                    # the check and set from outside this Session API
+                    ...
 
-        # updating the max_size of the client cache if it has changed
-        if (
-            max_size is not None
-            and max_size != self.cache["client"][eviction_policy].max_size
-        ):
-            self.cache["client"][eviction_policy].max_size = max_size
+            # updating the max_size of the client cache if it has changed
+            if max_size is not None and max_size != cache.max_size:
+                cache.max_size = max_size
 
-        return self.cache["client"][eviction_policy][key]
+            return cache[key]
 
     def resource(  # type: ignore[override]
         self,
@@ -265,6 +287,12 @@ class Session(boto3.Session):
     ) -> ServiceResource:
         """Returns a cached resource from the default session if it exists,
         otherwise creates a new resource and caches it.
+
+        Calls to this method are serialized by a lock to ensure thread safety
+        when accessing the cache. If you need higher concurrency, use multiple
+        session instances or use the low-level API instead
+        (i.e. :class:`boto3_client_cache.ResourceCache` and
+        :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
         .. versionadded:: 2.1.0
 
@@ -341,20 +369,21 @@ class Session(boto3.Session):
         # creating a cache key based on the resource initialization parameters
         key = ResourceCacheKey(*args, **kwargs)
 
-        # initializing the resource if it doesn't exist in the cache yet
-        if key not in self.cache["resource"][eviction_policy]:
-            self.cache["resource"][eviction_policy][key] = super().resource(
-                *args, **kwargs
-            )
+        with self._lock:
+            # initializing the resource if it doesn't exist in the cache yet
+            if key not in (cache := self.cache["resource"][eviction_policy]):
+                try:
+                    cache[key] = super().resource(*args, **kwargs)
+                except ResourceCacheExistsError:
+                    # another thread may have populated the cache between
+                    # the check and set from outside this Session API
+                    ...
 
-        # updating the max_size of the resource cache if it has changed
-        if (
-            max_size is not None
-            and max_size != self.cache["resource"][eviction_policy].max_size
-        ):
-            self.cache["resource"][eviction_policy].max_size = max_size
+            # updating the max_size of the resource cache if it has changed
+            if max_size is not None and max_size != cache.max_size:
+                cache.max_size = max_size
 
-        return self.cache["resource"][eviction_policy][key]
+            return cache[key]
 
 
 def setup_default_session(**kwargs) -> Session:
@@ -392,6 +421,12 @@ def client(
 ) -> BaseClient:
     """Returns a cached client from the default session if it exists,
     otherwise creates a new client and caches it.
+
+    Calls to this method are serialized by a lock to ensure thread safety
+    when accessing the cache. If you need higher concurrency, use multiple
+    session instances or use the low-level API instead
+    (i.e. :class:`boto3_client_cache.ResourceCache` and
+    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
     .. versionadded:: 2.1.0
 
@@ -456,6 +491,12 @@ def resource(
 ) -> ServiceResource:
     """Returns a cached resource from the default session if it exists,
     otherwise creates a new resource and caches it.
+
+    Calls to this method are serialized by a lock to ensure thread safety
+    when accessing the cache. If you need higher concurrency, use multiple
+    session instances or use the low-level API instead
+    (i.e. :class:`boto3_client_cache.ResourceCache` and
+    :class:`boto3_client_cache.ClientCache`) in tandem with ``boto3``.
 
     .. versionadded:: 2.1.0
 
