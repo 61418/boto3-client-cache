@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+from concurrent.futures import ThreadPoolExecutor
+from threading import Barrier, Lock
+from time import sleep
 from unittest.mock import MagicMock
 
 import boto3
@@ -276,3 +279,91 @@ def test_session_caches_are_not_shared_across_session_instances() -> None:
     assert first.cache.client["LFU"] is not second.cache.client["LFU"]
     assert first.cache.resource["LRU"] is not second.cache.resource["LRU"]
     assert first.cache.resource["LFU"] is not second.cache.resource["LFU"]
+
+
+def test_session_client_serializes_cache_miss_initialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workers = 8
+    created: list[BaseClient] = []
+    tracker_lock = Lock()
+    active_calls = 0
+    max_active_calls = 0
+
+    def fake_super_client(_self: boto3.Session, *args, **kwargs) -> BaseClient:
+        nonlocal active_calls, max_active_calls
+        with tracker_lock:
+            active_calls += 1
+            max_active_calls = max(max_active_calls, active_calls)
+
+        try:
+            # widening the race window; without Session-level locking this
+            # often produces duplicate creations or cache overwrite errors
+            sleep(0.01)
+            with tracker_lock:
+                client = _mock_client(f"client_{len(created)}")
+                created.append(client)
+            return client
+        finally:
+            with tracker_lock:
+                active_calls -= 1
+
+    monkeypatch.setattr(boto3.Session, "client", fake_super_client)
+    session = session_mod.Session(region_name="us-east-1")
+    start = Barrier(workers)
+
+    def invoke(_index: int) -> BaseClient:
+        start.wait()
+        return session.client("s3", region_name="us-east-1")
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = list(executor.map(invoke, range(workers)))
+
+    assert all(result is results[0] for result in results)
+    assert len(created) == 1
+    assert max_active_calls == 1
+
+
+def test_session_resource_serializes_cache_miss_initialization(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    workers = 8
+    created: list[ServiceResource] = []
+    tracker_lock = Lock()
+    active_calls = 0
+    max_active_calls = 0
+
+    def fake_super_resource(
+        _self: boto3.Session, *args, **kwargs
+    ) -> ServiceResource:
+        nonlocal active_calls, max_active_calls
+        with tracker_lock:
+            active_calls += 1
+            max_active_calls = max(max_active_calls, active_calls)
+
+        try:
+            # widening the race window; without Session-level locking this
+            # often produces duplicate creations or cache overwrite errors
+            sleep(0.01)
+            with tracker_lock:
+                resource = _mock_resource(f"resource_{len(created)}")
+                created.append(resource)
+            return resource
+        finally:
+            with tracker_lock:
+                active_calls -= 1
+
+    monkeypatch.setattr(boto3.Session, "resource", fake_super_resource)
+    session = session_mod.Session(region_name="us-east-1")
+    start = Barrier(workers)
+
+    def invoke(_index: int) -> ServiceResource:
+        start.wait()
+        return session.resource("s3", region_name="us-east-1")
+
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        results = list(executor.map(invoke, range(workers)))
+
+    assert all(result is results[0] for result in results)
+    assert len(created) == 1
+    assert max_active_calls == 1
