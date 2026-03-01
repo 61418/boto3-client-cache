@@ -559,7 +559,7 @@ class _BaseLRUCache(_AbstractCache, Generic[_CacheObjType, _CacheKeyType]):
             if not self._cache:
                 return f"{self.cache_type.capitalize()}Cache(empty)"
             labels = "\n   ".join(
-                f"- RefreshableSession.{self.cache_type}({key.label})"
+                f"- Session.{self.cache_type}({key.label})"
                 for key in self._cache.keys()
             )
             return f"{self.cache_type.capitalize()}Cache:\n   {labels}"
@@ -1092,8 +1092,7 @@ class _BaseLFUCache(
             if not keys:
                 return f"{self.cache_type.capitalize()}Cache(empty)"
             labels = "\n   ".join(
-                f"- RefreshableSession.{self.cache_type}({key.label})"
-                for key in keys
+                f"- Session.{self.cache_type}({key.label})" for key in keys
             )
             return f"{self.cache_type.capitalize()}Cache:\n   {labels}"
 
