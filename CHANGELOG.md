@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.11](https://github.com/61418/boto3-client-cache/compare/v2.1.10...v2.1.11) (2026-03-01)
+
+
+### Bug Fixes
+
+* Updating eviction policy spec in __str__ and __repr__ ([417cdb1](https://github.com/61418/boto3-client-cache/commit/417cdb1c93c771f1fb45f651f17f488f8714b0de))
+* Updating eviction policy spec in __str__ and __repr__ ([#52](https://github.com/61418/boto3-client-cache/issues/52)) ([3dadb4c](https://github.com/61418/boto3-client-cache/commit/3dadb4c5e766294ed43505a9349e4ae94bb1eaea))
+
 ## [2.1.10](https://github.com/61418/boto3-client-cache/compare/v2.1.9...v2.1.10) (2026-03-01)
 
 
