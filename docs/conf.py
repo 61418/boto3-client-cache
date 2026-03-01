@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.abspath("."))
 sys.path.insert(0, os.path.abspath(".."))
 language = "en"
 project = str(pyproject["project"]["name"])  # type: ignore
-author = "Michael Letts"
+author = "61418"
 copyright = f"{date.today().year}, {author}"
 release = str(pyproject["project"]["version"])  # type: ignore
 source_encoding = "utf-8"
