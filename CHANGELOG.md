@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.9](https://github.com/61418/boto3-client-cache/compare/v2.1.8...v2.1.9) (2026-03-01)
+
+
+### Bug Fixes
+
+* Adding thread safety to cache operations on Session.client and Session.resource methods ([ae25a80](https://github.com/61418/boto3-client-cache/commit/ae25a806f165bc8218cbe6ac180975b761f5718a))
+* Adding thread safety to cache operations on Session.client and Session.resource methods ([#48](https://github.com/61418/boto3-client-cache/issues/48)) ([4b7145a](https://github.com/61418/boto3-client-cache/commit/4b7145a99d5c9f8dbed68fb4748e930c07056b1e))
+
 ## [2.1.8](https://github.com/61418/boto3-client-cache/compare/v2.1.7...v2.1.8) (2026-02-28)
 
 
