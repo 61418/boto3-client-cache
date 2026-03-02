@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.14](https://github.com/61418/boto3-client-cache/compare/v2.1.13...v2.1.14) (2026-03-02)
+
+
+### Documentation
+
+* Adding downloads Shields badge ([fb6db40](https://github.com/61418/boto3-client-cache/commit/fb6db40271f87c45044d06525715c18cfd0537e9))
+* Adding downloads Shields badge ([#59](https://github.com/61418/boto3-client-cache/issues/59)) ([eb24d04](https://github.com/61418/boto3-client-cache/commit/eb24d04a87ff5a9a2a6e2bff4718ddf1a9e3eb38))
+
 ## [2.1.13](https://github.com/61418/boto3-client-cache/compare/v2.1.12...v2.1.13) (2026-03-02)
 
 
