@@ -125,13 +125,13 @@ jobs:
         with:
           cache-dependency-glob: "**/pyproject.toml"
 
-      - name: Build and publish package to PyPI
+      - name: Build package
         if: steps.release.outputs.release_created == 'true'
-        env:
-          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
-        run: |
-          uv build
-          uv publish
+        run: uv build
+
+      - name: Publish package to PyPI
+        if: steps.release.outputs.release_created == 'true'
+        uses: pypa/gh-action-pypi-publish@release/v1
 
   docs:
     name: Build and Deploy Docs
