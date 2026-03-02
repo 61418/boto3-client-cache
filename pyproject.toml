@@ -46,7 +46,7 @@ keywords = [
 Homepage = "https://61418.io/boto3-client-cache"
 Repository = "https://github.com/61418/boto3-client-cache"
 Documentation = "https://61418.io/boto3-client-cache"
-Change Log = "https://github.com/61418/boto3-client-cache/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/61418/boto3-client-cache/blob/main/CHANGELOG.md"
 Issues = "https://github.com/61418/boto3-client-cache/issues"
 
 [dependency-groups]
