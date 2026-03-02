@@ -51,6 +51,13 @@
     />
   </a>
 
+<a href="https://pepy.tech/projects/boto3-client-cache">
+  <img
+    src="https://img.shields.io/endpoint?url=https%3A%2F%2Fmichaelthomasletts.github.io%2Fpepy-stats%2Fboto3-client-cache.json&style=flat&logo=python&labelColor=555&color=f86d8e"
+    alt="downloads"
+  />
+</a>  
+
 </div>
 
 </br>
