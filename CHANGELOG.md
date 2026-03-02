@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.13](https://github.com/61418/boto3-client-cache/compare/v2.1.12...v2.1.13) (2026-03-02)
+
+
+### Documentation
+
+* **conf:** update author in conf.py to 61418 ([5bcb01c](https://github.com/61418/boto3-client-cache/commit/5bcb01ccccd69ff381cf06eb4be4e9dea8d1415e))
+* **conf:** update author in conf.py to 61418 ([#56](https://github.com/61418/boto3-client-cache/issues/56)) ([3cbd48a](https://github.com/61418/boto3-client-cache/commit/3cbd48a4fdc93a91bcc3d9f619543245db1ad264))
+
 ## [2.1.12](https://github.com/61418/boto3-client-cache/compare/v2.1.11...v2.1.12) (2026-03-01)
 
 
