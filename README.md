@@ -1,59 +1,65 @@
-# boto3-client-cache
+<p align="center">
+  <img 
+    src="https://raw.githubusercontent.com/61418/boto3-client-cache/refs/heads/main/docs/_static/transparent_header.png" 
+    alt="boto3-client-cache" 
+  />
+</p>
 
-<div align="left">
+
+<div align="center">
 
   <a href="https://pypi.org/project/boto3-client-cache/">
     <img 
-      src="https://img.shields.io/pypi/v/boto3-client-cache?color=%23f86d8e&logo=python&label=Latest%20Version"
+      src="https://img.shields.io/pypi/v/boto3-client-cache?color=%23c8712a&logo=python&label=Latest%20Version&labelColor=%23474749"
       alt="pypi_version"
     />
   </a>
 
   <a href="https://pypi.org/project/boto3-client-cache/">
     <img 
-      src="https://img.shields.io/pypi/pyversions/boto3-client-cache?style=pypi&color=%23f86d8e&logo=python&label=Compatible%20Python%20Versions" 
+      src="https://img.shields.io/pypi/pyversions/boto3-client-cache?style=pypi&color=%23c8712a&logo=python&label=Compatible%20Python%20Versions&labelColor=%23474749" 
       alt="py_version"
     />
   </a>
 
   <a href="https://github.com/61418/boto3-client-cache/actions/workflows/push.yml">
     <img 
-      src="https://img.shields.io/github/actions/workflow/status/61418/boto3-client-cache/push.yml?logo=github&color=%23f86d8e&label=Build" 
+      src="https://img.shields.io/github/actions/workflow/status/61418/boto3-client-cache/push.yml?logo=github&color=%23c8712a&label=Build&labelColor=%23474749" 
       alt="workflow"
     />
   </a>
 
   <a href="https://github.com/61418/boto3-client-cache/commits/main">
     <img 
-      src="https://img.shields.io/github/last-commit/61418/boto3-client-cache?logo=github&color=%23f86d8e&label=Last%20Commit" 
+      src="https://img.shields.io/github/last-commit/61418/boto3-client-cache?logo=github&color=%23c8712a&label=Last%20Commit&labelColor=%23474749" 
       alt="last_commit"
     />
   </a>
 
   <a href="https://61418.io/boto3-client-cache">
     <img 
-      src="https://img.shields.io/badge/Official%20Documentation-📘-f86d8e?style=flat&labelColor=555&logo=readthedocs" 
+      src="https://img.shields.io/badge/Official%20Documentation-📘-c8712a?style=flat&labelColor=%23474749&logo=readthedocs" 
       alt="documentation"
     />
   </a>
 
   <a href="https://github.com/61418/boto3-client-cache">
     <img 
-      src="https://img.shields.io/badge/Source%20Code-💻-f86d8e?style=flat&labelColor=555&logo=github" 
+      src="https://img.shields.io/badge/Source%20Code-💻-c8712a?style=flat&labelColor=%23474749&logo=github" 
       alt="github"
     />
   </a>
 
   <a href="https://github.com/61418/boto3-client-cache/blob/main/LICENSE">
     <img 
-      src="https://img.shields.io/static/v1?label=License&message=Apache&color=f86d8e&labelColor=555&logo=github&style=flat"
+      src="https://img.shields.io/static/v1?label=License&message=Apache&color=c8712a&labelColor=%23474749&logo=github&style=flat"
       alt="license"
     />
   </a>
 
 <a href="https://pepy.tech/projects/boto3-client-cache">
   <img
-    src="https://img.shields.io/endpoint?url=https%3A%2F%2Fmichaelthomasletts.github.io%2Fpepy-stats%2Fboto3-client-cache.json&style=flat&logo=python&labelColor=555&color=f86d8e"
+    src="https://img.shields.io/endpoint?url=https%3A%2F%2Fmichaelthomasletts.github.io%2Fpepy-stats%2Fboto3-client-cache.json&style=flat&logo=python&labelColor=%23474749&color=c8712a"
     alt="downloads"
   />
 </a>  
@@ -62,13 +68,13 @@
 
 </br>
 
-## Description
+## What is boto3-client-cache?
 
 boto3-client-cache provides a concurrency-safe, bounded cache for boto3 client and resource objects with deterministic identity semantics. LRU and LFU eviction are supported.
 
 boto3-client-cache was authored by [Mike Letts](https://github.com/michaelthomasletts) and is maintained by [61418](https://github.com/61418).
 
-## Why this exists
+## Why it exists
 
 [boto3 clients and resources consume a large amount of memory](https://github.com/boto/boto3/issues/4568). Many developers never notice this. *At scale*, however, the memory footprint of boto3 clients and resources often becomes clear through manifold consequences. Caching is an obvious choice for managing multiple clients and-or resources at scale. 
 
