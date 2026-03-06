@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.15](https://github.com/61418/boto3-client-cache/compare/v2.1.14...v2.1.15) (2026-03-06)
+
+
+### Documentation
+
+* Added 61418 logo to README header. ([c212f4c](https://github.com/61418/boto3-client-cache/commit/c212f4cacc174c34b0078f853c002b59fb52a610))
+* Added 61418 logo to README header. ([#61](https://github.com/61418/boto3-client-cache/issues/61)) ([e3822fc](https://github.com/61418/boto3-client-cache/commit/e3822fce84b3a3f6208d2f84dfce381cad3ec3bd))
+
 ## [2.1.14](https://github.com/61418/boto3-client-cache/compare/v2.1.13...v2.1.14) (2026-03-02)
 
 
