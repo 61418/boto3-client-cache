@@ -7,6 +7,8 @@ boto3-client-cache
 
 **Author:** `Mike Letts <https://michaelthomasletts.com>`_
 
+**Maintainers:** `61418 <https://61418.io>`_
+
 Description
 -----------
 
