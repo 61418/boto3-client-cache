@@ -5,6 +5,7 @@
   />
 </p>
 
+</br>
 
 <div align="center">
 
@@ -52,7 +53,7 @@
 
   <a href="https://github.com/61418/boto3-client-cache/blob/main/LICENSE">
     <img 
-      src="https://img.shields.io/static/v1?label=License&message=Apache&color=c8712a&labelColor=%23474749&logo=github&style=flat"
+      src="https://img.shields.io/static/v1?label=License&message=MPL-2.0&color=c8712a&labelColor=%23474749&logo=github&style=flat"
       alt="license"
     />
   </a>
