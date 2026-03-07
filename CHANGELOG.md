@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.16](https://github.com/61418/boto3-client-cache/compare/v2.1.15...v2.1.16) (2026-03-07)
+
+
+### Documentation
+
+* Adding maintainers to index (skipping) ([800d33a](https://github.com/61418/boto3-client-cache/commit/800d33aabf62a11b3a102461a467fbc754ebfeb5))
+* Adding maintainers to index (skipping) ([#63](https://github.com/61418/boto3-client-cache/issues/63)) ([090682a](https://github.com/61418/boto3-client-cache/commit/090682aa80e6e3d6b5f665c9ebe62d94918a56b0))
+* README license update. ([f85c680](https://github.com/61418/boto3-client-cache/commit/f85c680ac6c8c89e39a8adab1bb7109bd3ee3e2e))
+* README license update. ([#64](https://github.com/61418/boto3-client-cache/issues/64)) ([b2dc07c](https://github.com/61418/boto3-client-cache/commit/b2dc07cc867160af724ff669590d7e39b2189a24))
+
 ## [2.1.15](https://github.com/61418/boto3-client-cache/compare/v2.1.14...v2.1.15) (2026-03-06)
 
 
