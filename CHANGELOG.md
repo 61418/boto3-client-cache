@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.17](https://github.com/61418/boto3-client-cache/compare/v2.1.16...v2.1.17) (2026-03-14)
+
+
+### Documentation
+
+* Updated email in pyproject.toml ([39d88f0](https://github.com/61418/boto3-client-cache/commit/39d88f03d3bb52d19b79d3f54719450e8eb7e4bb))
+* Updated email in pyproject.toml ([#66](https://github.com/61418/boto3-client-cache/issues/66)) ([039052e](https://github.com/61418/boto3-client-cache/commit/039052e085f24863791e44d53baeefe8688b4e15))
+
 ## [2.1.16](https://github.com/61418/boto3-client-cache/compare/v2.1.15...v2.1.16) (2026-03-07)
 
 
