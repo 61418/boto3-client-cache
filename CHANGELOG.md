@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.18](https://github.com/61418/boto3-client-cache/compare/v2.1.17...v2.1.18) (2026-04-08)
+
+
+### Bug Fixes
+
+* Clarifying license in __init__ ([32429e3](https://github.com/61418/boto3-client-cache/commit/32429e33d1a85e8aa61994ea942fa0a67ebe4f13))
+* Clarifying license in __init__ ([#76](https://github.com/61418/boto3-client-cache/issues/76)) ([e28418a](https://github.com/61418/boto3-client-cache/commit/e28418a3f2f9875c6f8f36f89b4d710bd16ee2b9))
+
 ## [2.1.17](https://github.com/61418/boto3-client-cache/compare/v2.1.16...v2.1.17) (2026-03-14)
 
 
