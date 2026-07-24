@@ -158,11 +158,11 @@ s3_client = cache[key]
 Errors for resources are identical to errors for clients, except that the word "Client" is replaced with "Resource" in the exception name.
 
 ```python
-# raises ClientCacheExistsError b/c client(**kwargs) already exists 
+# raises ClientCacheExistsError b/c client(**kwargs) already exists
 # (from the pseudo-code above)
 cache[key] = boto3.client(**kwargs)
 
-# raises ClientCacheNotFoundError b/c the specific client was not 
+# raises ClientCacheNotFoundError b/c the specific client was not
 # cached above
 cache[ClientCacheKey(service_name="ec2", region_name="us-west-2")]
 
