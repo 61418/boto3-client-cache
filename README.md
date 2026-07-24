@@ -92,7 +92,7 @@ boto3 does not cache client or resource objects natively. There are also, to my 
 
 The most important but challenging design choice for client and resource caching is selecting and enforcing a robust and standardized methodology for unique keys. **boto3-client-cache hashes according to boto3 client and resource signatures**. 
 
-Setting and retrieving clients and resources from the client cache therefore requires an explicit declaration of intention -- that is, *the developer must explicitly pass client and resource initialization parameters to a `ClientCacheKey` or `ResourceCacheKey` object in order to set or retrieve boto3 clients*. This ensures setting and retrieving clients and resources are *unambiguous and deterministic* operations. By locking the cache, as boto3-client-cache does, race conditions are prevented, enabling developers to confidently employ the cache at scale with predictable cache eviction behavior. Lastly, by designing the cache like a dict in the standard Python library, the cache is ergonomically familiar and thus easy to use.
+Setting and retrieving clients and resources from the client cache therefore requires an explicit declaration of intention — that is, *the developer must explicitly pass client and resource initialization parameters to a `ClientCacheKey` or `ResourceCacheKey` object in order to set or retrieve boto3 clients*. This ensures setting and retrieving clients and resources are *unambiguous and deterministic* operations. By locking the cache, as boto3-client-cache does, race conditions are prevented, enabling developers to confidently employ the cache at scale with predictable cache eviction behavior. Lastly, by designing the cache like a dict in the standard Python library, the cache is ergonomically familiar and thus easy to use.
 
 These decisions reflect the core design goals of boto3-client-cache: **safety at scale, deterministic behavior, ergonomic interfacing, and explicit identity**.
 
@@ -158,10 +158,12 @@ s3_client = cache[key]
 Errors for resources are identical to errors for clients, except that the word "Client" is replaced with "Resource" in the exception name.
 
 ```python
-# raises ClientCacheExistsError b/c client(**kwargs) already exists
+# raises ClientCacheExistsError b/c client(**kwargs) already exists 
+# from the pseudo-code above
 cache[key] = boto3.client(**kwargs)
 
-# raises ClientCacheNotFoundError b/c the specific client was not cached
+# raises ClientCacheNotFoundError b/c the specific client was not 
+# cached above
 cache[ClientCacheKey(service_name="ec2", region_name="us-west-2")]
 
 # returns None instead of raising ClientCacheNotFoundError
