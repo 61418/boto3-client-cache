@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.19](https://github.com/61418/boto3-client-cache/compare/v2.1.18...v2.1.19) (2026-07-24)
+
+
+### Documentation
+
+* Error semantics docs updates ([#109](https://github.com/61418/boto3-client-cache/issues/109)) ([5635f05](https://github.com/61418/boto3-client-cache/commit/5635f050b8163596dc167c747c3e696aa46132ac))
+
 ## [2.1.18](https://github.com/61418/boto3-client-cache/compare/v2.1.17...v2.1.18) (2026-04-08)
 
 
