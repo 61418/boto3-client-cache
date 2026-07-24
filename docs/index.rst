@@ -33,7 +33,7 @@ Design
 The most important but challenging design choice for client and resource caching is selecting and enforcing a robust and standardized methodology for unique keys. 
 **boto3-client-cache hashes according to boto3 client and resource signatures**. 
 
-Setting and retrieving clients and resources from the cache therefore requires an explicit declaration of intention -- that is, *the developer must explicitly pass client or resource initialization parameters to a ClientCacheKey or ResourceCacheKey object in order to set or retrieve boto3 clients or resources*. 
+Setting and retrieving clients and resources from the cache therefore requires an explicit declaration of intention — that is, *the developer must explicitly pass client or resource initialization parameters to a ClientCacheKey or ResourceCacheKey object in order to set or retrieve boto3 clients or resources*.
 This ensures setting and retrieving clients and resources are *unambiguous and deterministic* operations. 
 By locking the cache, as boto3-client-cache does, race conditions are prevented, enabling developers to confidently employ the cache at scale with predictable cache eviction behavior. 
 Lastly, by designing the cache like a dict in the standard Python library, the cache is ergonomically familiar and thus easy to use.
